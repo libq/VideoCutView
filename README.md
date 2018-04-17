@@ -32,14 +32,11 @@ step 2: module build.gradle
 cut.getSuitImageCount(new VideoCutView.GetImageCountCallback() {
             @Override
             public void invoke(int count) {
-                String root =Environment.getExternalStorageDirectory().getAbsolutePath();
                 //本地图片
-
-                String imgPath = root+ File.separator +"Pictures/03 演示图片.jpg";
+                String imgPath = "xxx.jpg";
                 ArrayList<String> paths = new ArrayList<>();
                 for(int i = 0 ; i<=count ;i++){
                     paths.add(imgPath);
-                    //"http://p3.wmpic.me/article/2017/11/08/1510105952_KopFLXPj.jpg"
                 }
                 cut.setImageUrls(paths);
             }
