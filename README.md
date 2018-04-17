@@ -1,7 +1,7 @@
-## VideoCutView 视频裁剪view 带帧预览
+# VideoCutView 视频裁剪view 带帧预览
 ![image](https://github.com/libq/VideoCutView/blob/master/view.png)
 
-## 1.配置
+# 1.配置
 step 1:  project  build.gradle
 ```
 allprojects {
@@ -23,9 +23,9 @@ step 2: module build.gradle
 ```
 
 
-## 2.使用
+# 2.使用
 
-# java 
+## java 
 
 ```
 
@@ -56,8 +56,19 @@ cut.getSuitImageCount(new VideoCutView.GetImageCountCallback() {
 ```
 
 
-# xml
+## xml
 ```
-
+ <com.libq.videocutpreview.VideoCutView
+        android:id="@+id/cut"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        app:draw_cursor="false"
+        app:video_duration="10000"
+        app:top_bottom_border_width="10dp"
+        app:slider_width="10dp"
+        app:drag_area_width="10dp"
+        app:cut_min_duration="1000"
+        app:border_color="@color/colorAccent"
+        />
 ```
 
