@@ -76,7 +76,8 @@ public class MainActivity extends Activity implements EasyPermissions.Permission
             public void invoke(int count) {
                 String root =Environment.getExternalStorageDirectory().getAbsolutePath();
                 //本地图片
-                String imgPath = root+ File.separator +"DCIM/Camera/IMG20170215201922.jpg";
+
+                String imgPath = root+ File.separator +"Pictures/03 演示图片.jpg";
                 ArrayList<String> paths = new ArrayList<>();
                 for(int i = 0 ; i<=count ;i++){
                     paths.add(imgPath);
