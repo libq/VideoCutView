@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="VideoCutView">
+        <attr name="top_bottom_border_width" format="dimension"/>
+        <attr name="border_color" format="color"/>
+        <attr name="drag_area_width" format="dimension" />
+        <attr name="cut_min_duration" format="integer"/>
+        <attr name="video_duration" format="integer"/>
+        <attr name="slider_width" format="dimension"/>
+        <attr name="draw_cursor" format="boolean"/>
+    </declare-styleable>
+</resources>
