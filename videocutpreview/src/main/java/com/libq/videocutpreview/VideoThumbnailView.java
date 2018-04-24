@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
@@ -27,8 +28,8 @@ public class VideoThumbnailView extends View {
     private boolean canDrawCursor = true;
     private int mCursorX;
 
-    private RectF sliderLeftRectf;//左边滑块区域
-    private RectF sliderRightRectf;//右边滑块
+    private Rect sliderLeftRectf;//左边滑块区域
+    private Rect sliderRightRectf;//右边滑块
     private OnCutBorderScrollListener onCutBorderScrollListener;
     private OnTouchCutAreaListener onTouchCutAreaListener;
     private Context mContext;
@@ -151,13 +152,13 @@ public class VideoThumbnailView extends View {
             mWidth = getWidth();
             mHeight = getHeight();
 
-            sliderLeftRectf = new RectF();
+            sliderLeftRectf = new Rect();
             sliderLeftRectf.left = 0;
             sliderLeftRectf.top = 0;
             sliderLeftRectf.right = mSliderWidth;
             sliderLeftRectf.bottom = mHeight;
 
-            sliderRightRectf = new RectF();
+            sliderRightRectf = new Rect();
             sliderRightRectf.left = mWidth - mSliderWidth;
             sliderRightRectf.top = 0;
             sliderRightRectf.right = mWidth;
@@ -207,8 +208,8 @@ public class VideoThumbnailView extends View {
                 float scrollX = moveX - downX;
 
                 if (scrollLeft) {
-                    sliderLeftRectf.left = sliderLeftRectf.left + scrollX;
-                    sliderLeftRectf.right = sliderLeftRectf.right + scrollX;
+                    sliderLeftRectf.left = sliderLeftRectf.left + (int)scrollX;
+                    sliderLeftRectf.right = sliderLeftRectf.right + (int)scrollX;
 
                     if(sliderLeftRectf.left < 0){
                         sliderLeftRectf.left = 0;
@@ -225,8 +226,8 @@ public class VideoThumbnailView extends View {
                     scrollChange = true;
                     invalidate();
                 } else if (scrollRight) {
-                    sliderRightRectf.left = sliderRightRectf.left + scrollX;
-                    sliderRightRectf.right = sliderRightRectf.right + scrollX;
+                    sliderRightRectf.left = sliderRightRectf.left + (int)scrollX;
+                    sliderRightRectf.right = sliderRightRectf.right + (int)scrollX;
 
                     if(sliderRightRectf.right > mWidth){
                         sliderRightRectf.right = mWidth;
@@ -314,7 +315,7 @@ public class VideoThumbnailView extends View {
         }
     }
 
-    private void drawSlider(Canvas canvas,RectF rect){
+    private void drawSlider(Canvas canvas,Rect rect){
         canvas.drawRect(rect,mSliderPaint);
     }
 }

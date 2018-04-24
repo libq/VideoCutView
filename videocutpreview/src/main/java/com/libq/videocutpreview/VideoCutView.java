@@ -146,6 +146,15 @@ public class VideoCutView extends FrameLayout {
      */
     public void setCutMinDuration(int duration){
         mCutMinDuration = duration;
+        post(new Runnable() {
+            @Override
+            public void run() {
+                //设置裁剪最小距离
+                float length = ((mCutMinDuration*1f)/(mVideoDuration*1f)) * (getWidth()*1f);
+                mThumb.setMinLength(Math.round(length));
+            }
+        });
+
     }
 
     /**
