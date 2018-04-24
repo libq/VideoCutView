@@ -17,7 +17,7 @@ step 2: module build.gradle
 
 ```
 	dependencies {
-	        compile 'com.github.libq:VideoCutView:1.0.1'
+	        compile 'com.github.libq:VideoCutView:1.0.2'
 	}
 
 ```
