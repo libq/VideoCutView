@@ -16,8 +16,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -48,6 +46,7 @@ public class VideoCutView extends FrameLayout {
     private int mSliderWidth = 6;//左右两个滑动块的宽度
     private boolean isDrawCursor = false;//是否需要画游标
     private int mVideoDuration;
+    private ArrayList<ImageView> imageViews;
 
     public VideoCutView(@NonNull Context context) {
         super(context);
@@ -65,6 +64,7 @@ public class VideoCutView extends FrameLayout {
     }
 
     private void initView(Context context,AttributeSet attrs){
+        imageViews = new ArrayList<>();
         mContext = context;
         //---------------------------
         if(attrs!=null){
@@ -103,10 +103,13 @@ public class VideoCutView extends FrameLayout {
      * 设置图片集
      * @param urls
      */
-    public void setImageUrls(ArrayList<String> urls){
+    public void setImageUrls(ArrayList<String> urls,ImageLoadStrategyLinstener listener){
         imgUrls = urls;
-        for(String url:imgUrls){
-            addThumbImage(url);
+        for(int i=0;i<imgUrls.size();i++){
+            addThumbImage();
+        }
+        if(listener!=null){
+            listener.onLoad(urls,imageViews);
         }
     }
 
@@ -182,9 +185,8 @@ public class VideoCutView extends FrameLayout {
 
     /**
      * 添加图片
-     * @param url
      */
-    private void addThumbImage(String url){
+    private void addThumbImage(){
 
         ImageView iv = new ImageView(mContext);
         int thumbWidth = (int)(getHeight()*whRate);
@@ -192,11 +194,12 @@ public class VideoCutView extends FrameLayout {
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(thumbWidth,getHeight());
         iv.setLayoutParams(lp);
         mImageLayout.addView(iv);
-        File file = new File(url);
+        imageViews.add(iv);
+       /* File file = new File(url);
         Glide.with(mContext)
                 .load(file)
                 .diskCacheStrategy(DiskCacheStrategy.NONE)
-                .into(iv);
+                .into(iv);*/
 
     }
 
@@ -222,6 +225,13 @@ public class VideoCutView extends FrameLayout {
         if(listener!=null&&mThumb!=null){
             mThumb.setOnCutBorderScrollListener(listener);
         }
+    }
+
+    /**
+     * 图片加载策略
+     */
+    public interface ImageLoadStrategyLinstener{
+        void onLoad(ArrayList<String> urls,ArrayList<ImageView> ivs);
     }
 
 

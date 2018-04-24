@@ -83,7 +83,18 @@ public class MainActivity extends Activity implements EasyPermissions.Permission
                     paths.add(imgPath);
                     //"http://p3.wmpic.me/article/2017/11/08/1510105952_KopFLXPj.jpg"
                 }
-                cut.setImageUrls(paths);
+                cut.setImageUrls(paths, new VideoCutView.ImageLoadStrategyLinstener() {
+                    @Override
+                    public void onLoad(ArrayList<String> urls, ArrayList<ImageView> ivs) {
+                        for(int i=0;i<urls.size();i++){
+                            File file = new File(urls.get(i));
+                            Glide.with(MainActivity.this)
+                                    .load(file)
+                                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+                                    .into(ivs.get(i));
+                        }
+                    }
+                });
             }
         });
 

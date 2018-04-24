@@ -10,6 +10,13 @@
         android:id="@+id/cut"
         android:layout_width="match_parent"
         android:layout_height="80dp"
+        app:draw_cursor="false"
+        app:video_duration="10000"
+        app:top_bottom_border_width="10dp"
+        app:slider_width="10dp"
+        app:drag_area_width="10dp"
+        app:cut_min_duration="1000"
+        app:border_color="@color/colorAccent"
         />
 
 </LinearLayout>
