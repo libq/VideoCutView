@@ -17,7 +17,7 @@ step 2: module build.gradle
 
 ```
 	dependencies {
-	        compile 'com.github.libq:VideoCutView:1.0.0'
+	        compile 'com.github.libq:VideoCutView:1.0.1'
 	}
 
 ```
@@ -29,16 +29,30 @@ step 2: module build.gradle
 
 ```
 
-cut.getSuitImageCount(new VideoCutView.GetImageCountCallback() {
+       cut.getSuitImageCount(new VideoCutView.GetImageCountCallback() {
             @Override
             public void invoke(int count) {
+                String root =Environment.getExternalStorageDirectory().getAbsolutePath();
                 //本地图片
-                String imgPath = "xxx.jpg";
+
+                String imgPath = root+ File.separator +"Pictures/03 演示图片.jpg";
                 ArrayList<String> paths = new ArrayList<>();
                 for(int i = 0 ; i<=count ;i++){
                     paths.add(imgPath);
+                    //"http://p3.wmpic.me/article/2017/11/08/1510105952_KopFLXPj.jpg"
                 }
-                cut.setImageUrls(paths);
+                cut.setImageUrls(paths, new VideoCutView.ImageLoadStrategyLinstener() {
+                    @Override
+                    public void onLoad(ArrayList<String> urls, ArrayList<ImageView> ivs) {
+                        for(int i=0;i<urls.size();i++){
+                            File file = new File(urls.get(i));
+                            Glide.with(MainActivity.this)
+                                    .load(file)
+                                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+                                    .into(ivs.get(i));
+                        }
+                    }
+                });
             }
         });
 
