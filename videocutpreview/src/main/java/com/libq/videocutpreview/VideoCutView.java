@@ -187,9 +187,9 @@ public class VideoCutView extends FrameLayout {
     private int caculateThumbImageCount(){
         int rootHeight = getHeight();
         int rootWidth = getWidth();
-        int thumbWidth = (int)(rootHeight*1f * whRate);
+        double thumbWidth = rootHeight*1f * whRate;
         int thumbHeight = rootHeight;
-        return (int) Math.ceil(rootWidth/thumbWidth);
+        return (int)Math.ceil(rootWidth*1d/thumbWidth);
     }
 
     /**
