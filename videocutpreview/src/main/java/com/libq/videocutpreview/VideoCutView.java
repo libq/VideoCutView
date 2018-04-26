@@ -212,6 +212,12 @@ public class VideoCutView extends FrameLayout {
 
     }
 
+    public void clearAllFrame(){
+        if(mImageLayout!=null){
+            mImageLayout.removeAllViews();
+        }
+    }
+
     public interface GetImageCountCallback{
         void invoke(int count);
     }
@@ -230,17 +236,33 @@ public class VideoCutView extends FrameLayout {
      * 设置裁剪滑动监听
      * @param listener
      */
-    public void setOnCutBorderScrollListener(VideoThumbnailView.OnCutBorderScrollListener listener){
+    public void setOnVideoPlayIntervalChangeListener(final OnVideoPlayIntervalChangeListener listener){
         if(listener!=null&&mThumb!=null){
-            mThumb.setOnCutBorderScrollListener(listener);
+            mThumb.setOnCutBorderScrollListener(new VideoThumbnailView.OnCutBorderScrollListener() {
+                @Override
+                public void onScrollBorder(int start, int end) {
+                    int startTime = (int)(start*1f/(getWidth()*1f) * mVideoDuration);
+                    int endTime = (int)(end*1f/(getWidth()*1f) * mVideoDuration);
+                    listener.onChange(startTime,endTime);
+                }
+            });
         }
     }
+
+
 
     /**
      * 图片加载策略
      */
     public interface ImageLoadStrategyLinstener{
         void onLoad(ArrayList<String> urls,ArrayList<ImageView> ivs);
+    }
+
+    /**
+     * 视频播放区间改变监听
+     */
+    public interface OnVideoPlayIntervalChangeListener{
+        void onChange(int startTime,int endTime);
     }
 
 

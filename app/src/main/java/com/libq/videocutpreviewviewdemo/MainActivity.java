@@ -100,12 +100,12 @@ public class MainActivity extends Activity implements EasyPermissions.Permission
 
        cut.setVideoDuration(10000);
        cut.setCutMinDuration(3000);
-       cut.setOnCutBorderScrollListener(new VideoThumbnailView.OnCutBorderScrollListener() {
-            @Override
-            public void onScrollBorder(float start, float end) {
-                Log.e("Main","###### start ="+start+"   end = "+end);
-            }
-        });
+       cut.setOnVideoPlayIntervalChangeListener(new VideoCutView.OnVideoPlayIntervalChangeListener() {
+           @Override
+           public void onChange(int startTime, int endTime) {
+               Log.e("Main","###### start ="+startTime+"   end = "+endTime);
+           }
+       });
 
 
     }

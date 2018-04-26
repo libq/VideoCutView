@@ -117,7 +117,7 @@ public class VideoThumbnailView extends View {
     }
 
     public interface OnCutBorderScrollListener {
-        void onScrollBorder(float start, float end);
+        void onScrollBorder(int start, int end);
     }
 
     public void setOnCutBorderScrollListener(OnCutBorderScrollListener listener){
@@ -169,7 +169,7 @@ public class VideoThumbnailView extends View {
     private float downX;
     private boolean scrollLeft;
     private boolean scrollRight;
-    private float mScrollStartPosition,mScrollEndPosition;
+    private int mScrollStartPosition,mScrollEndPosition;
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
