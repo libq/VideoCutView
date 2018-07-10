@@ -99,6 +99,12 @@ public class VideoCutView extends FrameLayout {
 
     }
 
+    public void isDrawCursor(boolean isDraw){
+        if(mThumb!=null){
+            mThumb.setDrawCursor(isDraw);
+        }
+    }
+
     /**
      * 设置图片集
      * @param urls
@@ -263,6 +269,23 @@ public class VideoCutView extends FrameLayout {
      */
     public interface OnVideoPlayIntervalChangeListener{
         void onChange(int startTime,int endTime);
+    }
+
+    /**
+     * 设置游标
+     * @param x  0-100
+     */
+    public void setCursor(final int x){
+        if(mThumb!=null){
+            post(new Runnable() {
+                @Override
+                public void run() {
+                    float cursor = mThumb.getWidth() * (float)(x*1.0f/100f);
+                    mThumb.moveCursor((int)cursor);
+                }
+            });
+
+        }
     }
 
 

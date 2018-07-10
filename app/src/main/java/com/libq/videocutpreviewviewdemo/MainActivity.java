@@ -106,9 +106,11 @@ public class MainActivity extends Activity implements EasyPermissions.Permission
                Log.e("Main","###### start ="+startTime+"   end = "+endTime);
            }
        });
-
-
+       cut.isDrawCursor(true);
+       cut.setCursor(50);
     }
+
+
 
 
 }

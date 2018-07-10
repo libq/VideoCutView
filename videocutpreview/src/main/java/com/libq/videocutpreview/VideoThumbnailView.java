@@ -27,6 +27,7 @@ public class VideoThumbnailView extends View {
     private Paint mSliderPaint;
     private boolean canDrawCursor = true;
     private int mCursorX;
+    private int mCursorWidth = 6;
 
     private Rect sliderLeftRectf;//左边滑块区域
     private Rect sliderRightRectf;//右边滑块
@@ -184,6 +185,7 @@ public class VideoThumbnailView extends View {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 canDrawCursor = false;
+
                 downX = event.getX();
                 if (downX > sliderLeftRectf.left- mDragAreaWidth/2 && downX < sliderLeftRectf.right+ mDragAreaWidth/2) {
                     scrollRight = false;
@@ -272,7 +274,8 @@ public class VideoThumbnailView extends View {
 
         if (isDrawCursor) {
             if(canDrawCursor){
-                canvas.drawLine(mCursorX, sliderLeftRectf.top-mTopBottomBorderWidth,mCursorX, sliderLeftRectf.bottom+mTopBottomBorderWidth,mCursorPaint);
+                canvas.drawRect(mCursorX,sliderLeftRectf.top-mTopBottomBorderWidth,mCursorX+mCursorWidth,sliderLeftRectf.bottom+mTopBottomBorderWidth,mCursorPaint);
+               // canvas.drawLine(mCursorX, sliderLeftRectf.top-mTopBottomBorderWidth,mCursorX, sliderLeftRectf.bottom+mTopBottomBorderWidth,mCursorPaint);
             }
         }
         mPaint.setColor(mBorderColor);
