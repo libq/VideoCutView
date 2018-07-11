@@ -7,6 +7,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -107,7 +109,41 @@ public class MainActivity extends Activity implements EasyPermissions.Permission
            }
        });
        cut.isDrawCursor(true);
-       cut.setCursor(50);
+
+       new CursorThread().start();
+    }
+    Handler handler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            if(msg.what==1){
+                if(cut!=null){
+                    cut.setCursor(msg.arg1);
+                }
+            }
+        }
+    };
+    boolean isRun =true;
+    int progress = 0;
+    class CursorThread extends Thread{
+        @Override
+        public void run() {
+            try {
+                while(isRun){
+                    sleep(60);
+                    Message msg = handler.obtainMessage(1);
+
+                    if(progress>100){
+                        progress = 0;
+                    }
+                    msg.arg1 = progress;
+                    handler.sendMessage(msg);
+                    progress++;
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 
