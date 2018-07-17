@@ -8,6 +8,7 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -27,10 +28,12 @@ public class VideoThumbnailView extends View {
     private Paint mSliderPaint;
     private boolean canDrawCursor = true;
     private int mCursorX;
-    private int mCursorWidth = 6;
+    private int mCursorWidth = 10;
+    private int interHeight;
 
     private Rect sliderLeftRectf;//左边滑块区域
     private Rect sliderRightRectf;//右边滑块
+    //
     private OnCutBorderScrollListener onCutBorderScrollListener;
     private OnTouchCutAreaListener onTouchCutAreaListener;
     private Context mContext;
@@ -38,10 +41,19 @@ public class VideoThumbnailView extends View {
     private int mTopBottomBorderWidth = 6;
     private int mBorderColor = Color.RED;
     private int mDragAreaWidth = 40;//可拖动区域宽度
-    private int minLength = mDragAreaWidth/2+2;//最小长度//两个拖动条间的最小距离
-    private int mSliderWidth = 6;//左右两个滑动块的宽度
-    private boolean isDrawCursor = false;//是否需要画游标
-    private boolean isAutoMove = true;
+    private int minLength = mDragAreaWidth/2;//最小长度//两个拖动条间的最小距离
+    private int mSliderWidth = 28;//左右两个滑动块的宽度
+    private int topSpace = 10;
+
+    private RectF leftInterRect;
+    private RectF rightInterRect;//右边拖动条内部
+    private Paint sliderInterPaint;
+    private int sliderInterHeight;
+    private int sliderInterWidth=mSliderWidth/5;
+    private OnScrollCursorListener onScrollCursorListener;
+
+    private boolean isDrawCursor = false;
+    private RectF cursorRect;
 
     public void setWidth(int width) {
         this.mWidth = width;
@@ -51,6 +63,9 @@ public class VideoThumbnailView extends View {
         this.mTopBottomBorderWidth = topBottomBorderWidth;
     }
 
+    public void setOnScrollCursorListener(OnScrollCursorListener onScrollCursorListener) {
+        this.onScrollCursorListener = onScrollCursorListener;
+    }
 
     public void setDragAreaWidth(int dragAreaWidth) {
         this.mDragAreaWidth = dragAreaWidth;
@@ -79,13 +94,13 @@ public class VideoThumbnailView extends View {
         init(context);
     }
 
-    private int cursorWidth = 3;
+//    private int cursorWidth = 6;
     private void init(Context context) {
         mContext = context;
         mCursorPaint = new Paint();
         mCursorPaint.setAntiAlias(true);
-        mCursorPaint.setStrokeWidth(cursorWidth);
-        mCursorPaint.setColor(Color.RED);
+        mCursorPaint.setStrokeWidth(mCursorWidth);
+        mCursorPaint.setColor(Color.WHITE);
 
         mPaint = new Paint();
         mPaint.setAntiAlias(true);
@@ -95,7 +110,14 @@ public class VideoThumbnailView extends View {
         mSliderPaint.setAntiAlias(true);
         mSliderPaint.setStrokeCap(Paint.Cap.SQUARE);
         mSliderPaint.setStyle(Paint.Style.FILL);
-        mSliderPaint.setColor(mBorderColor);
+        mSliderPaint.setColor(Color.RED);
+
+        sliderInterPaint = new Paint();
+        sliderInterPaint.setAntiAlias(true);
+        sliderInterPaint.setStrokeCap(Paint.Cap.ROUND);
+        sliderInterPaint.setStyle(Paint.Style.FILL);
+        sliderInterPaint.setColor(Color.WHITE);
+
 
     }
 
@@ -138,12 +160,20 @@ public class VideoThumbnailView extends View {
         void onTouchDown();
     }
 
+    /**
+     * 裁剪的左边界
+     * @return
+     */
     public float getLeftInterval(){
-        return sliderLeftRectf.left;
+        return sliderLeftRectf.right;
     }
 
+    /**
+     * 裁剪的右边界
+     * @return
+     */
     public float getRightInterval(){
-        return sliderRightRectf.right;
+        return sliderRightRectf.left;
     }
 
     @Override
@@ -153,18 +183,37 @@ public class VideoThumbnailView extends View {
         if (mWidth == 0) {
             mWidth = getWidth();
             mHeight = getHeight();
+            interHeight = mHeight/4;
 
             sliderLeftRectf = new Rect();
             sliderLeftRectf.left = 0;
-            sliderLeftRectf.top = 0;
+            sliderLeftRectf.top = topSpace;
             sliderLeftRectf.right = mSliderWidth;
-            sliderLeftRectf.bottom = mHeight;
+            sliderLeftRectf.bottom = mHeight-topSpace;
 
             sliderRightRectf = new Rect();
             sliderRightRectf.left = mWidth - mSliderWidth;
-            sliderRightRectf.top = 0;
+            sliderRightRectf.top = topSpace;
             sliderRightRectf.right = mWidth;
-            sliderRightRectf.bottom = mHeight;
+            sliderRightRectf.bottom = mHeight-topSpace;
+
+            leftInterRect = new RectF();
+            leftInterRect.left = sliderLeftRectf.left + mSliderWidth/2 - sliderInterWidth/2;
+            leftInterRect.right =sliderLeftRectf.left + mSliderWidth/2 + sliderInterWidth/2;
+            leftInterRect.top = sliderLeftRectf.top + interHeight;
+            leftInterRect.bottom = sliderLeftRectf.bottom - interHeight;
+
+            rightInterRect = new RectF();
+            rightInterRect.left = sliderRightRectf.left + mSliderWidth/2 - sliderInterWidth/2;
+            rightInterRect.right =sliderRightRectf.left + mSliderWidth/2 + sliderInterWidth/2;
+            rightInterRect.top = sliderRightRectf.top + interHeight;
+            rightInterRect.bottom = sliderRightRectf.bottom - interHeight;
+
+            cursorRect = new RectF();
+            cursorRect.left = 0;
+            cursorRect.top = 0;
+            cursorRect.right = mCursorWidth;
+            cursorRect.bottom = mHeight;
         }
     }
 
@@ -177,7 +226,7 @@ public class VideoThumbnailView extends View {
     public boolean onTouchEvent(MotionEvent event) {
 
         move(event);
-        return scrollLeft || scrollRight;
+        return scrollLeft || scrollRight||dragCursor;
     }
 
     boolean scrollChange;
@@ -186,41 +235,36 @@ public class VideoThumbnailView extends View {
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                canDrawCursor = false;
 
                 downX = event.getX();
-                if (downX > sliderLeftRectf.left- mDragAreaWidth/2 && downX < sliderLeftRectf.right+ mDragAreaWidth/2) {
+                if (downX > sliderLeftRectf.left && downX < sliderLeftRectf.right) {
                     scrollRight = false;
                     scrollLeft = true;
                 }
-                if (downX > sliderRightRectf.left- mDragAreaWidth/2 && downX < sliderRightRectf.right+ mDragAreaWidth /2) {
+                if (downX > sliderRightRectf.left && downX < sliderRightRectf.right) {
                     scrollLeft = false;
                     scrollRight = true;
                 }
-                if ((downX > sliderLeftRectf.left- mDragAreaWidth/2 && downX < sliderLeftRectf.right+ mDragAreaWidth /2)||
-                        (downX > sliderRightRectf.left- mDragAreaWidth /2 && downX < sliderRightRectf.right+ mDragAreaWidth /2)) {
+                if ((downX > sliderLeftRectf.left && downX < sliderLeftRectf.right)||
+                        (downX > sliderRightRectf.left && downX < sliderRightRectf.right)) {
                     if(onTouchCutAreaListener !=null){
                         onTouchCutAreaListener.onTouchDown();
                     }
                 }
 
                 //如果点击游标区域
-                if(downX > mCursorX - 10 &&downX < mCursorX+mCursorWidth+10){
-                    isAutoMove = false;
+                if(downX > cursorRect.left &&downX < cursorRect.right){
                     dragCursor = true;
+                    scrollLeft = false;
+                    scrollRight = false;
                 }
 
                 break;
             case MotionEvent.ACTION_MOVE:
-                canDrawCursor = false;
+
                 float moveX = event.getX();
 
                 float scrollX = moveX - downX;
-
-                if(dragCursor){
-                    mCursorX = mCursorX + (int)scrollX;
-                    invalidate();
-                }
 
                 if (scrollLeft) {
                     sliderLeftRectf.left = sliderLeftRectf.left + (int)scrollX;
@@ -238,6 +282,12 @@ public class VideoThumbnailView extends View {
                         sliderLeftRectf.right = sliderRightRectf.left- minLength;
                         sliderLeftRectf.left = sliderLeftRectf.right - mSliderWidth;
                     }
+
+                    leftInterRect.left = sliderLeftRectf.left + mSliderWidth/2 - sliderInterWidth/2;
+                    leftInterRect.right =sliderLeftRectf.left + mSliderWidth/2 + sliderInterWidth/2;
+                    leftInterRect.top = sliderLeftRectf.top + interHeight;
+                    leftInterRect.bottom = sliderLeftRectf.bottom - interHeight;
+
                     invalidate();
                     scrollChange = true;
 
@@ -253,26 +303,38 @@ public class VideoThumbnailView extends View {
                         sliderRightRectf.left = sliderLeftRectf.left+ minLength;
                         sliderRightRectf.right = sliderRightRectf.left + mSliderWidth;
                     }
+
+                    rightInterRect.left = sliderRightRectf.left + mSliderWidth/2 - sliderInterWidth/2;
+                    rightInterRect.right =sliderRightRectf.left + mSliderWidth/2 + sliderInterWidth/2;
+                    rightInterRect.top = sliderRightRectf.top + interHeight;
+                    rightInterRect.bottom = sliderRightRectf.bottom - interHeight;
+
                     invalidate();
                     scrollChange = true;
                 }
+                if(dragCursor){
+                    mCursorX +=  scrollX;
+                    Log.e("xxxx","xxx"+mCursorX);
+                    cursorRect.left = mCursorX;
+                    cursorRect.right = cursorRect.left+mCursorWidth;
+                    if(onScrollCursorListener!=null){
+                        onScrollCursorListener.onScroll((mCursorX*1f)/(1f*mWidth));
+                    }
+                    invalidate();
+                }
 
-                /*if(onCutBorderScrollListener != null){
-                    onCutBorderScrollListener.onScrollBorder(sliderLeftRectf.left, sliderRightRectf.right);
-                }*/
-
-
-                mScrollStartPosition = sliderLeftRectf.left;
-                mScrollEndPosition = sliderRightRectf.right;
+                mScrollStartPosition = sliderLeftRectf.right;
+                mScrollEndPosition = sliderRightRectf.left;
 
                 downX = moveX;
                 break;
             case MotionEvent.ACTION_CANCEL:
             case MotionEvent.ACTION_UP:
-                downX = 0;
-                scrollLeft = false;
-                scrollRight = false;
-                isAutoMove = true;
+
+                if(dragCursor&&onScrollCursorListener!=null){
+                    onScrollCursorListener.onScrollEnd((mCursorX*1f)/(1f*mWidth));
+                }
+
                 if(scrollChange && onCutBorderScrollListener != null){
                     onCutBorderScrollListener.onScrollBorder(mScrollStartPosition,mScrollEndPosition);
                 }
@@ -280,7 +342,10 @@ public class VideoThumbnailView extends View {
                     onTouchCutAreaListener.onTouchUp();
                 }
                 scrollChange = false;
-                canDrawCursor = true;
+                downX = 0;
+                scrollLeft = false;
+                scrollRight = false;
+                dragCursor = false;
                 break;
         }
         return true;
@@ -289,37 +354,39 @@ public class VideoThumbnailView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
 
-        if (isDrawCursor) {
-            //if(canDrawCursor){
-                canvas.drawRect(mCursorX,sliderLeftRectf.top-mTopBottomBorderWidth,mCursorX+mCursorWidth,sliderLeftRectf.bottom+mTopBottomBorderWidth,mCursorPaint);
-               // canvas.drawLine(mCursorX, sliderLeftRectf.top-mTopBottomBorderWidth,mCursorX, sliderLeftRectf.bottom+mTopBottomBorderWidth,mCursorPaint);
-            //}
-        }
-        mPaint.setColor(mBorderColor);
 
         drawSlider(canvas, sliderLeftRectf);
+        //内部白条
+        canvas.drawRoundRect(leftInterRect,sliderInterWidth*1f/2.0f,sliderInterWidth*1f/2.0f,sliderInterPaint);
 
         drawSlider(canvas,sliderRightRectf);
+        //内部白条
+        canvas.drawRoundRect(rightInterRect,sliderInterWidth/2,sliderInterWidth/2,sliderInterPaint);
 
-        canvas.drawLine(sliderLeftRectf.left, 0, sliderRightRectf.right, 0, mPaint);
-        canvas.drawLine(sliderLeftRectf.left, mHeight, sliderRightRectf.right, mHeight, mPaint);
+        mPaint.setColor(Color.RED);
+        canvas.drawLine(sliderLeftRectf.left, topSpace, sliderRightRectf.right, topSpace, mPaint);
+        canvas.drawLine(sliderLeftRectf.left, mHeight-topSpace, sliderRightRectf.right, mHeight-topSpace, mPaint);
 
         mPaint.setColor(Color.parseColor("#99313133"));
 
+        //裁剪边界左边阴影
         RectF rectF3 = new RectF();
-        rectF3.left = 0;
-        rectF3.top = 0;
+        rectF3.left = mSliderWidth;
+        rectF3.top = topSpace;
         rectF3.right = sliderLeftRectf.left;
-        rectF3.bottom = mHeight;
+        rectF3.bottom = mHeight-topSpace;
         canvas.drawRect(rectF3, mPaint);
 
         RectF rectF4 = new RectF();
         rectF4.left = sliderRightRectf.right;
-        rectF4.top = 0;
-        rectF4.right = mWidth;
-        rectF4.bottom = mHeight;
+        rectF4.top = topSpace;
+        rectF4.right = mWidth-mSliderWidth;
+        rectF4.bottom = mHeight-topSpace;
         canvas.drawRect(rectF4, mPaint);
 
+        if (isDrawCursor) {
+            canvas.drawRoundRect(cursorRect,mCursorWidth/2,mCursorWidth/2,mCursorPaint);
+        }
 
 
     }
@@ -328,17 +395,33 @@ public class VideoThumbnailView extends View {
      * 移动游标
      * @param x
      */
-    public void moveCursor(int x){
+    public void setCursor(int x){
         if (isDrawCursor) {
-            if(isAutoMove)
+            if(!dragCursor)
             {
                 mCursorX = x;
-                invalidate();
+                cursorRect.left = mCursorX;
+                cursorRect.right = cursorRect.left + mCursorWidth;
+                postInvalidate();
             }
         }
     }
 
     private void drawSlider(Canvas canvas,Rect rect){
         canvas.drawRect(rect,mSliderPaint);
+    }
+
+    public interface OnScrollCursorListener{
+        /**
+         * 滑动游标
+         * @param value
+         */
+        void onScroll(float value);
+
+        /**
+         * 滑动结束
+         * @param value
+         */
+        void onScrollEnd(float value);
     }
 }

@@ -2,14 +2,10 @@ package com.libq.videocutpreview;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -17,7 +13,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 
-import java.io.File;
 import java.util.ArrayList;
 
 /**
@@ -37,13 +32,13 @@ public class VideoCutView extends FrameLayout {
     private Context mContext = null;
     private int minHeight = 100;
     private ArrayList<String> imgUrls = null;
-    private double whRate = 0.618f;//缩略图宽高比
+    private double whRate = 0.5f;//缩略图宽高比
 
     private int mTopBottomBorderWidth = 6;
     private int mBorderColor = Color.RED;
     private int mDragAreaWidth = 40;//可拖动区域宽度
-    private int mCutMinDuration = mDragAreaWidth/2+2;//最小长度//两个拖动条间的最小距离
-    private int mSliderWidth = 6;//左右两个滑动块的宽度
+    private int mCutMinDuration = mDragAreaWidth/2;//最小长度//两个拖动条间的最小距离
+    private int mSliderWidth = 28;//左右两个滑动块的宽度
     private boolean isDrawCursor = false;//是否需要画游标
     private int mVideoDuration;
     private ArrayList<ImageView> imageViews;
@@ -161,6 +156,12 @@ public class VideoCutView extends FrameLayout {
             }
         });
 
+    }
+
+    public void setOnScrollCursorListener(VideoThumbnailView.OnScrollCursorListener listener){
+        if(listener!=null&&mThumb!=null){
+            mThumb.setOnScrollCursorListener(listener);
+        }
     }
 
     /**
@@ -281,7 +282,7 @@ public class VideoCutView extends FrameLayout {
                 @Override
                 public void run() {
                     float cursor = mThumb.getWidth() * (float)(x*1.0f/100f);
-                    mThumb.moveCursor((int)cursor);
+                    mThumb.setCursor((int)cursor);
                 }
             });
 

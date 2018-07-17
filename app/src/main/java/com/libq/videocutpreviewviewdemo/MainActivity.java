@@ -108,43 +108,23 @@ public class MainActivity extends Activity implements EasyPermissions.Permission
                Log.e("Main","###### start ="+startTime+"   end = "+endTime);
            }
        });
+       cut.setOnScrollCursorListener(new VideoThumbnailView.OnScrollCursorListener() {
+           @Override
+           public void onScroll(float value) { // 百分比
+               Log.e("Main","[onScroll]="+value);
+           }
+
+           @Override
+           public void onScrollEnd(float value) {  //百分比
+                Log.e("Main","[onScrollEnd]="+value);
+           }
+       });
        cut.isDrawCursor(true);
+       cut.setCursor(20);//在播放进度回调里面设置进度
 
-       new CursorThread().start();
+       //new CursorThread().start();
     }
-    Handler handler = new Handler(){
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            if(msg.what==1){
-                if(cut!=null){
-                    cut.setCursor(msg.arg1);
-                }
-            }
-        }
-    };
-    boolean isRun =true;
-    int progress = 0;
-    class CursorThread extends Thread{
-        @Override
-        public void run() {
-            try {
-                while(isRun){
-                    sleep(60);
-                    Message msg = handler.obtainMessage(1);
 
-                    if(progress>100){
-                        progress = 0;
-                    }
-                    msg.arg1 = progress;
-                    handler.sendMessage(msg);
-                    progress++;
-                }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-    }
 
 
 

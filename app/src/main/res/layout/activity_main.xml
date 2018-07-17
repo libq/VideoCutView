@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#ff000000"
     android:orientation="vertical">
 
     <com.libq.videocutpreview.VideoCutView
@@ -15,7 +16,7 @@
         app:video_duration="10000"
         app:top_bottom_border_width="10dp"
         app:cut_min_duration="1000"
-        app:border_color="@color/colorAccent"
+        android:layout_margin="10dp"
         />
 
 </RelativeLayout>
