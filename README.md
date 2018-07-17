@@ -1,5 +1,5 @@
 # VideoCutView 视频裁剪view 带帧预览
-![image](https://github.com/libq/VideoCutView/blob/master/view.png)
+![image](https://github.com/libq/VideoCutView/blob/cursor-draggable/image.png)
 
 # 1.配置
 step 1:  project  build.gradle
